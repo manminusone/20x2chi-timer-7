@@ -8,7 +8,7 @@ This is an application to set up a Raspberry Pi server as a timer. Due to the un
 
 Until recently the server was controlled remotely with, and displayed the time on, Arduino-based remote clients, but a catastrophic failure of the Arduino libraries used for controlling LCD displays has made that technology much less reliable. The Arduino remote is still viable, thanks to the [M5Stack](http://www.m5stack.com/) IoT platforms. 
 
-So the current plan is: set up a Raspberry Pi server with a composite monitor (or rather multiple monitors connected using consumer-grade composite video distrubtion/amplifier products); use the Arduino remote to control the timer; and set up the screens on stage to be visible to the speakers.
+So the current plan is: set up a Raspberry Pi server with a composite monitor (or rather multiple monitors connected using consumer-grade composite video distribution/amplifier products); use the Arduino remote to control the timer; and set up the screens on stage to be visible to the speakers.
 
 ## Technologies used
 
