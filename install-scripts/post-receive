@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# This is a post-receive hook that should allow code to be deployed via git push.
+# 
+# How to set this up:
+#
+# 1) Log into the RPi server
+#
+# 2) mkdir /home/pi/openresty-staging.git && git init --bare /home/pi/openresty-staging.git
+#
+# 3) Copy this script into the directory /home/pi/openresty-staging.git/hooks/ and chmod +x it
+#
+# 4) On the local copy of this repo, add the remote repo: git remote add prod pi@servername.local:openresty-staging.git
+#
+# 5) Push the main branch and the deployment goes. Only some folders should be pushed to production, which is the reason for the directories in the git checkout cmd.
+#
+
+
+TARGET="/usr/local/openresty"
+GIT_DIR="/home/pi/openresty-staging.git"
+BRANCH="main"
+
+while read oldrev newrev ref
+do
+	# only checking out the master (or whatever branch you would like to deploy)
+	if [ "$ref" = "refs/heads/$BRANCH" ];
+	then
+		echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
+		git --work-tree=$TARGET --git-dir=$GIT_DIR checkout -f $BRANCH nginx
+	else
+		echo "Ref $ref received. Doing nothing: only the ${BRANCH} branch may be deployed on this server."
+	fi
+done
