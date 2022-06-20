@@ -7,6 +7,11 @@
 #
 #
 
+# EDIT THESE VALUES
+SSID=SSID-NAME
+PASSWD=PASSWORD
+
+
 
 shouldbe() {
 	foo=$($1)
@@ -19,6 +24,22 @@ shouldbe() {
 
 create_conf() {
 	# creating the basic config files
+	cat <<- EOF | sudo tee /etc/hostapd/hostapd.conf
+	interface=wlan0
+	bridge=br0
+	hw_mode=g
+	channel=7
+	wmm_enabled=0
+	macaddr_acl=0
+	auth_algs=1
+	ignore_broadcast_ssid=0
+	wpa=2
+	wpa_key_mgmt=WPA-PSK
+	wpa_pairwise=TKIP
+	rsn_pairwise=CCMP
+	ssid=$SSID
+	wpa_passphrase=$PASSWD
+	EOF
 	cat <<- EOF | sudo tee /etc/dhcpcd.conf.ORIGINAL
 	hostname 20x2chi-timer
 	clientid
@@ -103,6 +124,12 @@ case $1 in
 		sudo reboot now
 	;;
 	init )
+		if [[ "$PASSWD" == "PASSWORD" ]]
+		then
+			echo You need to edit this script.
+			echo Replace the default values of SSID and PASSWD at the top of the script.
+			exit 1
+		fi
 		echo "Checking versions of required software"
 		echo -n ".. dnsmasq ... "
 		shouldbe "/usr/sbin/dnsmasq -v" "2.80" "dnsmasq"
