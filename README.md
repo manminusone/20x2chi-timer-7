@@ -37,7 +37,6 @@ This server is designed to run on a vanilla Raspberry Pi desktop install. The st
 
 ## Directories
 
-* admin-scripts/ -- Scripts used to set up administration of the server
 * arduino/ -- Arduino admin client code (TODO)
 * images/ -- XBM files used to display the digits on the Tk canvas
 * install-scripts/ -- Scripts used to set up the RPi server configuration for use
