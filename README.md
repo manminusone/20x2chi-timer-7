@@ -10,6 +10,22 @@ Until recently the server was controlled remotely with, and displayed the time o
 
 So the current plan is: set up a Raspberry Pi server with a composite monitor (or rather multiple monitors connected using consumer-grade composite video distribution/amplifier products); use the Arduino remote to control the timer; and set up the screens on stage to be visible to the speakers.
 
+
+## Installation
+
+With the caveat that this documentation is still being worked out, here are the general steps.
+
+* Clone this script on your local dev server.
+* Set up a bare Git repository on your RPi server and add it as a remote target on your dev machine. (TO BE DOCUMENTED)
+* Copy the post-receive script into the bare Git repo on the server.
+* Push your code to the remote repo on the RPi server, and the script should copy the appropriate files wherever they should go.
+
+## Using the timer
+
+The timer should automatically start up when the RPi server reboots (FIXME: make sure there is an install script to do this!). It should display a simple Tk window on the desktop. This window will contain the timer, which will poll the local HTTP server for the time to display.
+
+There will be an Arduino admin client that should be able to connect to the RPI's WiFi hotspot and control the timer via the HTTP server. The ESP32 boards manufactured by M5Stack will be supported because they provide a simple all-in-one hardware product that can be used for the control.
+
 ## Technologies used
 
 This server is designed to run on a vanilla Raspberry Pi desktop install. The stuff that will be built and installed:
