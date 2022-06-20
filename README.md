@@ -15,7 +15,7 @@ So the current plan is: set up a Raspberry Pi server with a composite monitor (o
 
 With the caveat that this documentation is still being worked out, here are the general steps.
 
-* Clone this script on your local dev server.
+* Clone this repository on your local dev server.
 * Set up a bare Git repository on your RPi server and add it as a remote target on your dev machine. (TO BE DOCUMENTED)
 * Copy the post-receive script into the bare Git repo on the server.
 * Push your code to the remote repo on the RPi server, and the script should copy the appropriate files wherever they should go.
