@@ -9,7 +9,6 @@
 #
 
 from tkinter import *
-import tkinter.font
 import requests
 from requests.sessions import Session
 import json
@@ -130,13 +129,11 @@ def redraw_xbm():
 
 # resize does the job of checking the current window size and updating vars
 def resize(event=None):
-  global timefont
   global frame
   global canvas
 
   # assuming portrait aspect here
   new_size = -max(12, int((frame.winfo_height() * 0.75)))
-  timefont.configure(size=new_size)
   canvas.configure(width=frame.winfo_width(),height=frame.winfo_height())
   redraw_xbm()
 
