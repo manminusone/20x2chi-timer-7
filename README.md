@@ -21,9 +21,11 @@ This server is designed to run on a vanilla Raspberry Pi desktop install. The st
 
 ## Directories
 
-* nginx/ -- This is the Nginx config file that serves up the API using Redis
-* install-scripts/ -- These scripts are used to init the RPi server
+* admin-scripts/ -- Scripts used to set up administration of the server
 * arduino/ -- Arduino admin client code (TODO)
+* images/ -- XBM files used to display the digits on the Tk canvas
+* install-scripts/ -- Scripts used to set up the RPi server configuration for use
+* nginx/ -- This is the Nginx config file that serves up the API using Redis
   
 ## License
 Distributed under the MIT License. See `LICENSE.txt` for more information.
