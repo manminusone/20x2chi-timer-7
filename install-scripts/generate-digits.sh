@@ -84,7 +84,7 @@ then
 fi
 
 # These are probably more sizes than are necessary, but it's good to be prepared for any case
-for width in 50 100 150 200 300 400 500 600 700
+for width in 150 190 300 500
 do
     echo Creating charset with $width pixel width
     for dig in 0 1 2 3 4 5 6 7 8 9

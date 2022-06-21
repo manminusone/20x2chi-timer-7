@@ -9,7 +9,6 @@
 #
 
 from tkinter import *
-import requests
 from requests.sessions import Session
 import json
 import os
@@ -17,6 +16,9 @@ from os.path import exists
 import configparser
 import glob
 import re
+
+# Set this flag to False if you want to run locally w/o API server
+HTTPREQ = True 
 
 # OFFBKGCOL: the background color of the timer when it's off
 OFFBKGCOL = '#060'
@@ -67,16 +69,19 @@ def check_time():
   global secs
   global timeron
 
-  with requests.Session() as session:
+  if not(HTTPREQ):
+    secs = 120
+    return 
+  with Session() as session:
     with session.get("http://localhost/time") as r:
       http_code = r.status_code
       if http_code == 200:
         js = json.loads(r.content)
-      if timeron == False and js["status"] == 'ON':
-        timeron = True
-      if timeron == True and js["status"] == 'OFF':
-        timeron = False
-      secs = js["secs"]
+        if timeron == False and js["status"] == 'ON':
+          timeron = True
+        if timeron == True and js["status"] == 'OFF':
+          timeron = False
+        secs = js["secs"]
 
 #
 # the big canvas redraw!
@@ -119,6 +124,9 @@ def redraw_xbm():
         canvas.configure(bg=BKGCOL[x])
         break
   cw = charw()
+  if cw <= 0:
+    return
+  print("cw = %d" % cw)
   colonw = int(fontconfig[PREFIX][str(cw)])
   sw = 3 * cw + colonw
   canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit1,cw),anchor=W)
@@ -133,7 +141,6 @@ def resize(event=None):
   global canvas
 
   # assuming portrait aspect here
-  new_size = -max(12, int((frame.winfo_height() * 0.75)))
   canvas.configure(width=frame.winfo_width(),height=frame.winfo_height())
   redraw_xbm()
 
