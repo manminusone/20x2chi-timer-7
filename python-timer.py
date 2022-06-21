@@ -18,7 +18,7 @@ import glob
 import re
 
 # Set this flag to False if you want to run locally w/o API server
-HTTPREQ = True 
+HTTPREQ = False
 
 # OFFBKGCOL: the background color of the timer when it's off
 OFFBKGCOL = '#060'
