@@ -131,7 +131,7 @@ then
     exit 1
 fi
 echo ".. unpacking"
-if ! tar zxf --one-top-level=/tmp/oresty-$$ "openresty-${OPENRESTY_VERSION}.tar.gz"
+if ! tar zxf "openresty-${OPENRESTY_VERSION}.tar.gz" --directory /tmp --one-top-level=oresty-$$ 
 then
     echo "Extracting the archive caused an error."
     exit 1
@@ -140,7 +140,11 @@ fi
 echo ".. building and installing"
 OLDDIR="$PWD"
 cd /tmp/oresty-$$ || exit 1
-./configure -j2 && make -j2 && sudo make install
+if ! ./configure -j2 && make -j2 && sudo make install
+then
+    echo "openresty build failed"
+    exit 1
+fi
 cd "$OLDDIR" || exit 1
 
 echo ".. adding openresty directories to PATH"
