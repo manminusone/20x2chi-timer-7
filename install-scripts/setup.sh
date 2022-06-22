@@ -18,7 +18,7 @@ echo ""
 echo "           20x2 Chicago Timer Setup"
 echo ""
 
-read -pr "Hit Enter to begin server setup process: " yn
+read -r -p "Hit Enter to begin server setup process: " yn
 
 DISTID=$(lsb_release -i)
 
@@ -37,7 +37,7 @@ fi
 if [[ -e /run/sshwarn ]]
 then
     echo "You haven't changed the default password for the 'pi' user."
-    read -pr "Do you want to change the password before we start? [Yn] " yn
+    read -r -p "Do you want to change the password before we start? [Yn] " yn
     case $yn in
       [nN]* ) echo "Okay, just remember to change it please? Thanks.";;
       * ) /usr/sbin/passwd ;
