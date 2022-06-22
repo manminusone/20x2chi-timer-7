@@ -18,6 +18,8 @@ echo ""
 echo "           20x2 Chicago Timer Setup"
 echo ""
 
+read -pr "Hit Enter to begin server setup process: " yn
+
 DISTID=$(lsb_release -i)
 
 if [[ "$DISTID" != *"Raspbian"* ]]
@@ -71,6 +73,10 @@ echo " "
 echo "* updating the default desktop background to black.png"
 convert -size 720x480 canvas:black black.png
 sudo mv black.png /etc/alternatives/desktop-background
+echo " "
+
+echo "* updating the splash screen"
+sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png
 echo " "
 
 echo "* setting up .xinitrc for screen blanking"
@@ -234,6 +240,26 @@ case \$1 in
     ;;
 esac
 EOF
+
+echo "* checking default python version"
+foo=$(python -V)
+if [[ "$foo" == *"Python 3"* ]]
+then
+  echo ".. default python is 3.x, so we are good."
+else
+  echo ".. Python should be version 3. Updating the symlink."
+  sudo rm /usr/bin/python
+  sudo ln -s /usr/bin/python3 /usr/bin/python
+  foo=$(python -V)
+  if [[ "$foo" == *"Python 3"* ]]
+  then
+    echo ".. yaay, that worked"
+  else 
+    echo ".. ! default Python is still not 3. Check your PATH variable."
+    exit 1
+  fi
+fi
+echo " "
 
 # set up XBMs
 # "http://torinak.com/font/7segment.ttf"
