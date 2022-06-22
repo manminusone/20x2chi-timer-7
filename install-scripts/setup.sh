@@ -28,6 +28,22 @@ then
     exit 1
 fi
 
+if [[ "$USER" != "pi" ]]
+then
+    echo "You really should run this script as the 'pi' user."
+    exit 1
+fi
+
+if [[ -e /run/sshwarn ]]
+then
+    echo "You haven't changed the default password for the 'pi' user."
+    read -pr "Do you want to change the password before we start? [Yn] " yn
+    case $yn in
+      [nN]* ) echo "Okay, just remember to change it please? Thanks.";;
+      * ) /usr/sbin/passwd ;
+    esac
+fi
+
 echo "Part 1: System Setup"
 echo " "
 
