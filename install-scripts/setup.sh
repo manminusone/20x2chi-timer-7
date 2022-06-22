@@ -92,7 +92,19 @@ sudo mv black.png /etc/alternatives/desktop-background
 echo " "
 
 echo "* updating the splash screen"
-sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png
+UPDATED=0
+for possibleDir in . .. ../images images
+do
+    if [[ -e "$possibleDir/splash.png" ]]
+    then
+        sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png
+        UPDATED=1
+    fi
+done
+if [[ "$UPDATED" ==  "0" ]]
+then 
+    echo "!!! I don't see the splash screen, so you should check on that. I won't stop the install though."
+fi 
 echo " "
 
 echo "* setting up .xinitrc for screen blanking"
