@@ -16,9 +16,10 @@ from os.path import exists
 import configparser
 import glob
 import re
+import time
 
 # Set this flag to False if you want to run locally w/o API server
-HTTPREQ = False
+HTTPREQ = True
 
 # OFFBKGCOL: the background color of the timer when it's off
 OFFBKGCOL = '#060'
@@ -104,6 +105,7 @@ def charw():
 
 def redraw_xbm():
   global canvas, secs, timeron, frame
+  blink = secs < -15 and int(time.time()) % 2
   digit1 = 0
   digit2 = 0
   digit3 = 0
@@ -116,23 +118,28 @@ def redraw_xbm():
   if frame.winfo_width() <= 1:
     return
 
+  bkgcol = ''
+  txtcol = 'black'
   if not(timeron):
-    canvas.configure(bg=OFFBKGCOL)
+    #canvas.configure(bg=OFFBKGCOL)
+    bkgcol=OFFBKGCOL
   else:
     for x in BKGCOL.keys():
       if secs <= x:
-        canvas.configure(bg=BKGCOL[x])
+        #canvas.configure(bg=BKGCOL[x])
+        bkgcol=BKGCOL[x]
         break
+
+  canvas.configure(bg=(txtcol if blink else bkgcol))
   cw = charw()
   if cw <= 0:
     return
-  print("cw = %d" % cw)
   colonw = int(fontconfig[PREFIX][str(cw)])
   sw = 3 * cw + colonw
-  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit1,cw),anchor=W)
-  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2 + cw, frame.winfo_height() / 2, bitmap="@images/%s-colon-%d.xbm" % (PREFIX,cw),anchor=W)
-  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2 + cw + colonw, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit2,cw),anchor=W)
-  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2 + 2 * cw + colonw, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit3,cw),anchor=W)
+  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit1,cw),anchor=W,foreground=(bkgcol if blink else txtcol))
+  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2 + cw, frame.winfo_height() / 2, bitmap="@images/%s-colon-%d.xbm" % (PREFIX,cw),anchor=W,foreground=(bkgcol if blink else txtcol))
+  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2 + cw + colonw, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit2,cw),anchor=W,foreground=(bkgcol if blink else txtcol))
+  canvas.create_bitmap(frame.winfo_width() / 2 - sw / 2 + 2 * cw + colonw, frame.winfo_height() / 2, bitmap="@images/%s-%d-%d.xbm" % (PREFIX,digit3,cw),anchor=W,foreground=(bkgcol if blink else txtcol))
   
 
 # resize does the job of checking the current window size and updating vars
