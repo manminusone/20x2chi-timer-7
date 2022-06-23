@@ -4,6 +4,9 @@
 DEFAULT_TZ=America/Chicago
 OPENRESTY_VERSION=1.21.4.1
 
+SSID="TestSSID"
+PASSWD="ChangeThisPassword"
+
 
 # this is all in a function because it can be called in a couple of places
 install_openresty() {
@@ -185,8 +188,6 @@ else
     install_openresty
 fi
 
-install_openresty
-
 
 echo "* creating wifi config files"
 
@@ -237,7 +238,7 @@ dhcp-range=192.168.4.5,192.168.4.20,255.255.255.0,24h
 EOF
 
 echo "* creating hotspot control script"
-cat <<- EOF > sudo tee /usr/local/bin/hotspot
+cat <<- EOF | sudo tee /usr/local/bin/hotspot
 #!/bin/bash
 #
 # This is a control script to set up the hotspot configs. 
