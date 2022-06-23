@@ -184,6 +184,18 @@ install_wifi_config() {
 	sudo chmod a+x /usr/local/bin/hotspot
 }
 
+gen_xbm() {
+	echo " "
+	wget -q -nc 'http://torinak.com/font/7segment.ttf'
+	tempdir=$(dirname "$0")
+	if [[ ! -e "$tempdir/generate-digits.sh" ]]
+	then
+		echo "I don't see the generate-digits.sh script around here."
+		exit 1
+	fi
+
+	/bin/bash "$tempdir/generate-digits.sh" -f 7segment.ttf -d "$1"
+}
 
 # check arguments
 
@@ -398,10 +410,24 @@ then
 	idir="$IMGDIR"
 fi
 
-echo "idir=$idir"
-# set up XBMs
-# "http://torinak.com/font/7segment.ttf"
-#
+if [[ $(find "$idir" -name '*.xbm' | wc -l) != "0" ]]
+then
+	if [[ "$REINSTALL" != "" ]]
+	then
+		yn="$REINSTALL"
+	else
+		echo "Looks like it already has been installed."
+		read -r -p "Should I reinstall? [yN] " yn
+	fi
+	case $yn in 
+		[yY]* ) echo "OK, reinstalling."
+			gen_xbm "$idir" ;;
+		* ) ;;
+	esac
+else
+	gen_xbm "$idir"
+fi
+
 # copy nginx config files
 # set up python script to run at startup
 # 
