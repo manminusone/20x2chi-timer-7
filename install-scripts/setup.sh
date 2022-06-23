@@ -147,7 +147,11 @@ for possibleDir in . .. ../images images
 do
     if [[ -e "$possibleDir/splash.png" ]]
     then
-        sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png
+        if ! sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png 
+        then
+            echo "! Copying the splasg.png file to the /usr/share/plymouth/themes/pix directory failed"
+            exit 1
+        fi
         UPDATED=1
     fi
 done
