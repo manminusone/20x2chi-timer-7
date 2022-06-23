@@ -140,9 +140,19 @@ fi
 echo ".. building and installing"
 OLDDIR="$PWD"
 cd "/tmp/openresty-${OPENRESTY_VERSION}" || exit 1
-if ! ./configure -j2 && make -j2 && sudo make install
+if ! ./configure -j2
 then
-    echo "openresty build failed"
+    echo "openresty configure failed"
+    exit 1
+fi
+if ! make -j2
+then
+    echo "openresty make failed"
+    exit 1
+fi
+if ! sudo make install
+then
+    echo "openrest install failed"
     exit 1
 fi
 cd "$OLDDIR" || exit 1
