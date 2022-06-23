@@ -1,4 +1,12 @@
 #!/bin/bash
+#
+#
+# Arguments:
+#
+# --reinstall    : force reinstall of all items
+# --no-reinstall : do no reinstalls
+#
+
 
 # Any configurable values should be up here, kthx
 DEFAULT_TZ=America/Chicago
@@ -176,6 +184,19 @@ install_wifi_config() {
 	sudo chmod a+x /usr/local/bin/hotspot
 }
 
+
+# check arguments
+
+REINSTALL=""
+for arg in "$@"
+do
+	case $arg in 
+		--reinstall    ) REINSTALL="y";;
+		--no-reinstall ) REINSTALL="n";;
+		* ) ;;
+	esac
+done
+
 # this should be a safe value to use
 export DISPLAY=:0
 
@@ -285,7 +306,7 @@ echo " "
 
 echo "* setting up .xinitrc for screen blanking"
 mkdir -p ~/.config/lxsession/LXDE-pi/
-cat <<FOO | tee  ~/.config/lxsession/LXDE-pi/autostart
+cat <<FOO | tee  ~/.config/lxsession/LXDE-pi/autostart > /dev/null
 @lxpanel --profile LXDE
 @pcmanfm --desktop --profile LXDE
 
@@ -301,9 +322,13 @@ echo "* setting up openresty"
 
 if [[ -d /usr/local/openresty ]]
 then
-    echo "Looks like it already has been installed."
-    read -r -p "Should I reinstall? [yN] " yn
-
+	if [[ "$REINSTALL" != "" ]]
+	then
+		yn="$REINSTALL"
+	else
+		echo "Looks like it already has been installed."
+		read -r -p "Should I reinstall? [yN] " yn
+	fi
     case $yn in 
     [yY]* ) 
         echo "OK, reinstalling."
@@ -319,8 +344,13 @@ echo "* creating wifi config files"
 
 if [[ -e /etc/dhcpcd.conf.HOTSPOT ]]
 then
-	echo "Looks like it already has been installed."
-	read -r -p "Should I reinstall? [yN] " yn
+	if [[ "$REINSTALL" != "" ]]
+	then
+		yn="$REINSTALL"
+	else
+		echo "Looks like it already has been installed."
+		read -r -p "Should I reinstall? [yN] " yn
+	fi
 	case $yn in
 		[yY]* )
 			echo "OK, reinstalling."
@@ -356,5 +386,5 @@ echo " "
 # "http://torinak.com/font/7segment.ttf"
 #
 # copy nginx config files
-#
+# set up python script to run at startup
 # 
