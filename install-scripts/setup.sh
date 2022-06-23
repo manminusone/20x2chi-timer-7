@@ -70,7 +70,7 @@ install_wifi_config() {
 	ssid=$SSID
 	wpa_passphrase=$PASSWD
 	EOF
-	cat <<- EOF | sudo tee /etc/dhcpcd.conf.ORIGINAL
+	cat <<- EOF | sudo tee /etc/dhcpcd.conf.ORIGINAL > /dev/null
 	hostname 20x2chi-timer
 	clientid
 	persistent
@@ -317,7 +317,7 @@ fi
 
 echo "* creating wifi config files"
 
-if [[ -e /etc/hostapd/hostapd.conf.ORIGINAL ]]
+if [[ -e /etc/dhcpcd.conf.HOTSPOT ]]
 then
 	echo "Looks like it already has been installed."
 	read -r -p "Should I reinstall? [yN] " yn
