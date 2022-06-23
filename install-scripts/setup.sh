@@ -382,6 +382,23 @@ else
 fi
 echo " "
 
+echo "* creating XBMs"
+IMGDIR=""
+for i in images ../images
+do
+	if [[ -d "$PWD/$i" ]]
+	then
+		IMGDIR="$PWD/$i"
+	fi 
+done
+
+read -r -p "Directory for images [$IMGDIR] " idir
+if [[ "$idir" == "" ]]
+then
+	idir="$IMGDIR"
+fi
+
+print "idir=$idir"
 # set up XBMs
 # "http://torinak.com/font/7segment.ttf"
 #
