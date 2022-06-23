@@ -53,6 +53,128 @@ install_openresty() {
     echo " "
 }
 
+install_wifi_config() {
+	cat <<- EOF | sudo tee /etc/hostapd/hostapd.conf > /dev/null
+	interface=wlan0
+	bridge=br0
+	hw_mode=g
+	channel=7
+	wmm_enabled=0
+	macaddr_acl=0
+	auth_algs=1
+	ignore_broadcast_ssid=0
+	wpa=2
+	wpa_key_mgmt=WPA-PSK
+	wpa_pairwise=TKIP
+	rsn_pairwise=CCMP
+	ssid=$SSID
+	wpa_passphrase=$PASSWD
+	EOF
+	cat <<- EOF | sudo tee /etc/dhcpcd.conf.ORIGINAL
+	hostname 20x2chi-timer
+	clientid
+	persistent
+	option rapid_commit
+	option domain_name_servers, domain_name, domain_search, host_name
+	option classless_static_routes
+	option interface_mtu
+	require dhcp_server_identifier
+	slaac private
+	EOF
+	sudo cp /etc/dhcpcd.conf.ORIGINAL /etc/dhcpcd.conf.HOTSPOT
+	cat <<- EOF | sudo tee -a /etc/dhcpcd.conf.HOTSPOT > /dev/null
+
+	interface wlan0
+	static ip_address=192.168.4.1/24
+	denyinterfaces wlan0
+	EOF
+
+	cat <<- EOF | sudo tee /etc/dnsmasq.conf.ORIGINAL > /dev/null
+	dhcp-mac=set:client_is_a_pi,B8:27:EB:*:*:*
+	dhcp-reply-delay=tag:client_is_a_pi,2
+
+	EOF
+	sudo cp /etc/dnsmasq.conf.ORIGINAL /etc/dnsmasq.conf.HOTSPOT
+	cat <<- EOF | sudo tee -a /etc/dnsmasq.conf.HOTSPOT > /dev/null
+	interface=wlan0
+	dhcp-range=192.168.4.5,192.168.4.20,255.255.255.0,24h
+	EOF
+
+	echo "* creating hotspot control script"
+	cat <<- EOF | sudo tee /usr/local/bin/hotspot > /dev/null
+	#!/bin/bash
+	#
+	# This is a control script to set up the hotspot configs. 
+	#
+	# You should first run the hotspot-init.sh script to set up the hotspot,
+	# and then use 'hotspot on' and 'hotspot off' to control the functionality.
+	#
+	#
+
+	stop_services() {
+		sudo systemctl stop hostapd
+		sudo systemctl stop dnsmasq
+	}
+
+
+	activate_services() {
+		sudo systemctl unmask hostapd
+		sudo systemctl enable hostapd
+		sudo systemctl enable dnsmasq
+	}
+
+	deactivate_services() {
+		sudo systemctl disable hostapd
+		sudo systemctl mask hostapd
+	}
+
+	turnon() {
+		echo cp "\${1}.HOTSPOT" "\$1"
+		sudo cp "\${1}.HOTSPOT" "\$1"
+	}
+
+	turnoff() {
+		echo cp "\${1}.ORIGINAL" "\$1"
+		sudo cp "\${1}.ORIGINAL" "\$1"
+	}
+
+	###
+	###	main code
+	###
+
+	case \$1 in 
+		on )
+			echo "turning on"
+			stop_services
+			turnon /etc/dhcpcd.conf
+			turnon /etc/dnsmasq.conf
+			activate_services
+			echo "Rebooting..."
+			sudo reboot now
+		;;
+
+		off )
+			echo "turning off"
+			stop_services
+			turnoff /etc/dhcpcd.conf
+			turnoff /etc/dnsmasq.conf
+			deactivate_services
+			echo "Rebooting..."
+			sudo reboot now
+		;;
+		* )
+			echo "Command usage:"
+			echo ""
+			echo "    hotspot on -- turn on the hotspot"
+			echo "    hotspot off -- turn off the hotspot"
+			echo ""
+			echo "That's all for now."
+			echo ""
+		;;
+	esac
+	EOF
+	sudo chmod a+x /usr/local/bin/hotspot
+}
 
 # this should be a safe value to use
 export DISPLAY=:0
@@ -195,126 +317,20 @@ fi
 
 echo "* creating wifi config files"
 
-cat << EOF | sudo tee /etc/hostapd/hostapd.conf
-interface=wlan0
-bridge=br0
-hw_mode=g
-channel=7
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
-ssid=$SSID
-wpa_passphrase=$PASSWD
-EOF
-cat <<- EOF | sudo tee /etc/dhcpcd.conf.ORIGINAL
-hostname 20x2chi-timer
-clientid
-persistent
-option rapid_commit
-option domain_name_servers, domain_name, domain_search, host_name
-option classless_static_routes
-option interface_mtu
-require dhcp_server_identifier
-slaac private
-EOF
-sudo cp /etc/dhcpcd.conf.ORIGINAL /etc/dhcpcd.conf.HOTSPOT
-cat <<- EOF | sudo tee -a /etc/dhcpcd.conf.HOTSPOT
+if [[ -e /etc/hostapd/hostapd.conf.ORIGINAL ]]
+then
+	echo "Looks like it already has been installed."
+	read -r -p "Should I reinstall? [yN] " yn
+	case $yn in
+		[yY]* )
+			echo "OK, reinstalling."
+			install_wifi_config;;
+		* ) ;;
+	esac
+else
+	install_wifi_config
+fi
 
-interface wlan0
-static ip_address=192.168.4.1/24
-denyinterfaces wlan0
-EOF
-
-cat <<- EOF | sudo tee /etc/dnsmasq.conf.ORIGINAL
-dhcp-mac=set:client_is_a_pi,B8:27:EB:*:*:*
-dhcp-reply-delay=tag:client_is_a_pi,2
-
-EOF
-sudo cp /etc/dnsmasq.conf.ORIGINAL /etc/dnsmasq.conf.HOTSPOT
-cat <<- EOF | sudo tee -a /etc/dnsmasq.conf.HOTSPOT
-interface=wlan0
-dhcp-range=192.168.4.5,192.168.4.20,255.255.255.0,24h
-EOF
-
-echo "* creating hotspot control script"
-cat <<- EOF | sudo tee /usr/local/bin/hotspot
-#!/bin/bash
-#
-# This is a control script to set up the hotspot configs. 
-#
-# You should first run the hotspot-init.sh script to set up the hotspot,
-# and then use 'hotspot on' and 'hotspot off' to control the functionality.
-#
-#
-
-stop_services() {
-    sudo systemctl stop hostapd
-    sudo systemctl stop dnsmasq
-}
-
-
-activate_services() {
-    sudo systemctl unmask hostapd
-    sudo systemctl enable hostapd
-    sudo systemctl enable dnsmasq
-}
-
-deactivate_services() {
-    sudo systemctl disable hostapd
-    sudo systemctl mask hostapd
-}
-
-turnon() {
-    echo cp "\${1}.HOTSPOT" "\$1"
-    sudo cp "\${1}.HOTSPOT" "\$1"
-}
-
-turnoff() {
-    echo cp "\${1}.ORIGINAL" "\$1"
-    sudo cp "\${1}.ORIGINAL" "\$1"
-}
-
-###
-###	main code
-###
-
-case \$1 in 
-    on )
-        echo "turning on"
-        stop_services
-        turnon /etc/dhcpcd.conf
-        turnon /etc/dnsmasq.conf
-        activate_services
-        echo "Rebooting..."
-        sudo reboot now
-    ;;
-
-    off )
-        echo "turning off"
-        stop_services
-        turnoff /etc/dhcpcd.conf
-        turnoff /etc/dnsmasq.conf
-        deactivate_services
-        echo "Rebooting..."
-        sudo reboot now
-    ;;
-    * )
-        echo "Command usage:"
-        echo ""
-        echo "    hotspot on -- turn on the hotspot"
-        echo "    hotspot off -- turn off the hotspot"
-        echo ""
-        echo "That's all for now."
-        echo ""
-    ;;
-esac
-EOF
-sudo chmod a+x /usr/local/bin/hotspot
 
 echo "* checking default python version"
 foo=$(python -V)
