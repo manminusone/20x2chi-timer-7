@@ -310,6 +310,7 @@ case \$1 in
     ;;
 esac
 EOF
+sudo chmod a+x /usr/local/bin/hotspot
 
 echo "* checking default python version"
 foo=$(python -V)
