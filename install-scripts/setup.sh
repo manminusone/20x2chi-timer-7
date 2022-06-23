@@ -4,6 +4,53 @@
 DEFAULT_TZ=America/Chicago
 OPENRESTY_VERSION=1.21.4.1
 
+
+# this is all in a function because it can be called in a couple of places
+install_openresty() {
+    echo ".. downloading version $OPENRESTY_VERSION"
+    wget -nc --quiet "https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz"
+    if [[ ! -e "openresty-${OPENRESTY_VERSION}.tar.gz" ]]
+    then
+        echo "For some reason the openresety file wasn't downloaded. Stopping."
+        exit 1
+    fi
+    echo ".. unpacking"
+    if ! tar zxf "openresty-${OPENRESTY_VERSION}.tar.gz" --directory /tmp
+    then
+        echo "Extracting the archive caused an error."
+        exit 1
+    fi
+
+    echo ".. building and installing"
+    OLDDIR="$PWD"
+    cd "/tmp/openresty-${OPENRESTY_VERSION}" || exit 1
+    if ! ./configure -j2
+    then
+        echo "openresty configure failed"
+        exit 1
+    fi
+    if ! make -j2
+    then
+        echo "openresty make failed"
+        exit 1
+    fi
+    if ! sudo make install
+    then
+        echo "openrest install failed"
+        exit 1
+    fi
+    cd "$OLDDIR" || exit 1
+
+    # don't add the PATH update if it appears to be in .profile
+    if [[ $(grep -c openresty ~/.profile) == "0" ]]
+    then
+        echo ".. adding openresty directories to PATH"
+        echo "export PATH=/usr/local/openresty/nginx/bin:/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin:\$PATH" >> ~/.profile
+    fi
+    echo " "
+}
+
+
 # this should be a safe value to use
 export DISPLAY=:0
 
@@ -109,7 +156,7 @@ echo " "
 
 echo "* setting up .xinitrc for screen blanking"
 mkdir -p ~/.config/lxsession/LXDE-pi/
-cat <<FOO | tee  mkdir -p ~/.config/lxsession/LXDE-pi/autostart
+cat <<FOO | tee  ~/.config/lxsession/LXDE-pi/autostart
 @lxpanel --profile LXDE
 @pcmanfm --desktop --profile LXDE
 
@@ -123,43 +170,23 @@ echo "Part 2: Software Setup"
 echo " "
 echo "* setting up openresty"
 
-echo ".. downloading version $OPENRESTY_VERSION"
-wget --quiet "https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz"
-if [[ ! -e "openresty-${OPENRESTY_VERSION}.tar.gz" ]]
+if [[ -d /usr/local/openresty ]]
 then
-    echo "For some reason the openresety file wasn't downloaded. Stopping."
-    exit 1
-fi
-echo ".. unpacking"
-if ! tar zxf "openresty-${OPENRESTY_VERSION}.tar.gz" --directory /tmp
-then
-    echo "Extracting the archive caused an error."
-    exit 1
+    echo "Looks like it already has been installed."
+    read -r -p "Should I reinstall? [yN] " yn
+
+    case $yn in 
+    [yY]* ) 
+        echo "OK, reinstalling."
+        install_openresty;;
+    * )  ;;
+    esac
+else
+    install_openresty
 fi
 
-echo ".. building and installing"
-OLDDIR="$PWD"
-cd "/tmp/openresty-${OPENRESTY_VERSION}" || exit 1
-if ! ./configure -j2
-then
-    echo "openresty configure failed"
-    exit 1
-fi
-if ! make -j2
-then
-    echo "openresty make failed"
-    exit 1
-fi
-if ! sudo make install
-then
-    echo "openrest install failed"
-    exit 1
-fi
-cd "$OLDDIR" || exit 1
+install_openresty
 
-echo ".. adding openresty directories to PATH"
-echo "export PATH=/usr/local/openresty/nginx/bin:/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin:\$PATH" >> ~/.profile
-echo " "
 
 echo "* creating wifi config files"
 
