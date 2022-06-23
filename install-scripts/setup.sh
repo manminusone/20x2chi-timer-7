@@ -398,7 +398,7 @@ then
 	idir="$IMGDIR"
 fi
 
-print "idir=$idir"
+echo "idir=$idir"
 # set up XBMs
 # "http://torinak.com/font/7segment.ttf"
 #
