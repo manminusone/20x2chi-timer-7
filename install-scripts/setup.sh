@@ -78,6 +78,14 @@ install_wifi_config() {
 	ssid=$SSID
 	wpa_passphrase=$PASSWD
 	EOF
+
+	# also need to update the script to use this config file
+	if ! sudo sed -i 's/#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/g' /etc/default/hostapd
+	then
+		echo "sed command to update /etc/hostapd/hostapd.conf failed, which I wasn't expecting."
+		exit 1
+	fi
+
 	cat <<- EOF | sudo tee /etc/dhcpcd.conf.ORIGINAL > /dev/null
 	hostname 20x2chi-timer
 	clientid
