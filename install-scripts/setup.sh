@@ -239,6 +239,21 @@ then
     exit 1
 fi
 
+# Make sure you are in an appropriate directory
+if [[ ! -e python-timer.py ]]
+then
+	if [[ ! -e ../python-timer.py ]]
+	then
+		echo "You should make sure you are in the 20x2-timer-7 repo when you setup"
+		echo "because there are some files copied over and created."
+		echo " "
+		echo "So please locate the repo and run the setup.sh script there."
+		exit 1
+	else
+		cd ..
+	fi
+fi
+
 if [[ -e /run/sshwarn ]]
 then
     echo "You haven't changed the default password for the 'pi' user."
@@ -297,19 +312,16 @@ sudo mv black.png /etc/alternatives/desktop-background
 echo " "
 
 echo "* updating the splash screen"
-UPDATED=0
-for possibleDir in . .. ../images images
-do
-    if [[ -e "$possibleDir/splash.png" ]]
-    then
-        if ! sudo cp "$possibleDir/splash.png" /usr/share/plymouth/themes/pix/splash.png 
-        then
-            echo "! Copying the splasg.png file to the /usr/share/plymouth/themes/pix directory failed"
-            exit 1
-        fi
-        UPDATED=1
-    fi
-done
+if [[ -e images/splash.png ]]
+then
+	if ! sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png 
+	then
+		echo "! Copying the splash.png file to the /usr/share/plymouth/themes/pix directory failed"
+		exit 1
+	fi
+	UPDATED=1
+fi
+
 if [[ "$UPDATED" ==  "0" ]]
 then 
     echo "!!! I don't see the splash screen, so you should check on that. I won't stop the install though."
@@ -395,22 +407,8 @@ fi
 echo " "
 
 echo "* creating XBMs"
-IMGDIR=""
-for i in images ../images
-do
-	if [[ -d "$PWD/$i" ]]
-	then
-		IMGDIR="$PWD/$i"
-	fi 
-done
 
-read -r -p "Directory for images [$IMGDIR] " idir
-if [[ "$idir" == "" ]]
-then
-	idir="$IMGDIR"
-fi
-
-if [[ $(find "$idir" -name '*.xbm' | wc -l) != "0" ]]
+if [[ $(find images -name '*.xbm' | wc -l) != "0" ]]
 then
 	if [[ "$REINSTALL" != "" ]]
 	then
@@ -421,13 +419,31 @@ then
 	fi
 	case $yn in 
 		[yY]* ) echo "OK, reinstalling."
-			gen_xbm "$idir" ;;
+			gen_xbm images ;;
 		* ) ;;
 	esac
 else
-	gen_xbm "$idir"
+	gen_xbm images
 fi
+echo " "
 
 # copy nginx config files
+
+echo "* copying nginx files to /usr/local/openresty"
+sudo cp -R nginx /usr/local/openresty/nginx
+echo " "
+
 # set up python script to run at startup
-# 
+echo "* setting up python-timer.py to run at desktop startup"
+mkdir -p  /home/pi/.config/autostart
+cat <<EOF  > /home/pit/.config/autostart/timer.desktop
+[Desktop Entry]
+Type=Application
+Name=20x2 Timer
+Exec=/usr/bin/python3 $PWD/python-timer.py
+EOF
+echo " "
+
+echo " *** done ***"
+echo " Now restart."
+exit 0
