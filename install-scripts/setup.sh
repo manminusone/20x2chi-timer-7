@@ -430,13 +430,17 @@ echo " "
 # copy nginx config files
 
 echo "* copying nginx files to /usr/local/openresty"
-sudo cp -R nginx /usr/local/openresty/nginx
+if ! sudo cp -R nginx /usr/local/openresty
+then
+	echo "Copy didn't work"
+	exit 1
+fi
 echo " "
 
 # set up python script to run at startup
 echo "* setting up python-timer.py to run at desktop startup"
 mkdir -p  /home/pi/.config/autostart
-cat <<EOF  > /home/pit/.config/autostart/timer.desktop
+cat <<EOF  > /home/pi/.config/autostart/timer.desktop
 [Desktop Entry]
 Type=Application
 Name=20x2 Timer
