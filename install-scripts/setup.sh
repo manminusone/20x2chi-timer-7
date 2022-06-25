@@ -52,6 +52,41 @@ install_openresty() {
     fi
     cd "$OLDDIR" || exit 1
 
+	echo ".. adding systemd script"
+	cat <<- EOF | sudo tee /etc/systemd/system/openresty.service > /dev/null
+	# Stop dance for OpenResty
+	# A modification of the Nginx systemd script
+	# Source: https://www.digitalocean.com/community/tutorials/how-to-use-the-openresty-web-framework-for-nginx-on-ubuntu-16-04
+	# =======================
+	#
+	# ExecStop sends SIGSTOP (graceful stop) to the Nginx process.
+	# If, after 5s (--retry QUIT/5) OpenResty is still running, systemd takes control
+	# and sends SIGTERM (fast shutdown) to the main process.
+	# After another 5s (TimeoutStopSec=5), and if OpenResty is alive, systemd sends
+	# SIGKILL to all the remaining processes in the process group (KillMode=mixed).
+	#
+	# Nginx signals reference doc:
+	# http://nginx.org/en/docs/control.html
+	#
+	[Unit]
+	Description=A dynamic web platform based on Nginx and LuaJIT.
+	After=network.target
+
+	[Service]
+	Type=forking
+	PIDFile=/run/openresty.pid
+	ExecStartPre=/usr/local/openresty/bin/openresty -t -q -g 'daemon on; master_process on;'
+	ExecStart=/usr/local/openresty/bin/openresty -g 'daemon on; master_process on;'
+	ExecReload=/usr/local/openresty/bin/openresty -g 'daemon on; master_process on;' -s reload
+	ExecReload=/bin/kill -s HUP $MAINPID
+	ExecStop=/bin/kill -s QUIT $MAINPID
+	TimeoutStopSec=5
+	KillMode=mixed
+
+	[Install]
+	WantedBy=multi-user.target	
+	EOF
+
     # don't add the PATH update if it appears to be in .profile
     if [[ $(grep -c openresty ~/.profile) == "0" ]]
     then
