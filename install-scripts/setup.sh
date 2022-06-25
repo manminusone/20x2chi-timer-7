@@ -496,6 +496,7 @@ cat <<EOF  > /home/pi/.config/autostart/timer.desktop
 Type=Application
 Name=20x2 Timer
 Exec=/usr/bin/python3 $PWD/python-timer.py
+Path=$PWD
 EOF
 echo " "
 

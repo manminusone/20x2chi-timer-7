@@ -17,6 +17,9 @@ import configparser
 import glob
 import re
 import time
+import logging
+
+logging.basicConfig(level=logging.DEBUG,filename="/tmp/timer-log.txt")
 
 # Set this flag to False if you want to run locally w/o API server
 HTTPREQ = True
@@ -40,7 +43,7 @@ timeron = False
 # detect fonts
 fontconfig = configparser.ConfigParser()
 if not(exists("images/digits.ini")):
-  print("Generating digits.ini from current images directory")
+  logging.info("Generating digits.ini from current images directory")
   files = glob.glob("images/*-colon-*.xbm")
   for f in files:
     m = re.match("images/(.+)\-colon\-(\d+).xbm",f)
@@ -58,7 +61,7 @@ if not(exists("images/digits.ini")):
     fontconfig[prefix][charwidth] = colon_width
   with open("images/digits.ini","w") as fil:
     fontconfig.write(fil)
-  print("done")
+  logging.info("done")
 else:
   fontconfig.read("images/digits.ini")
 
@@ -70,6 +73,7 @@ def check_time():
   global secs
   global timeron
 
+  logging.debug("calling check_time()")
   if not(HTTPREQ):
     secs = 120
     return 
@@ -77,6 +81,7 @@ def check_time():
     with session.get("http://localhost/time") as r:
       http_code = r.status_code
       if http_code == 200:
+        logging.debug("content = " + r.content)
         js = json.loads(r.content)
         if timeron == False and js["status"] == 'ON':
           timeron = True
@@ -92,8 +97,10 @@ charwidth=-1
 screenwidth=-1
 
 def charw():
+  logging.debug("calling charw()")
   global frame,screenwidth,charwidth
   if screenwidth == frame.winfo_width():
+    logging.debug("returning cached value")
     return charwidth
   else:
     screenwidth = frame.winfo_width()
@@ -101,10 +108,12 @@ def charw():
     for k in fontconfig[PREFIX].keys():
       if int(k) > charwidth and screenwidth > 3 * int(k) + int(fontconfig[PREFIX][k]):
         charwidth = int(k)
+    logging.debug("new value = %d" % charwidth)
     return charwidth
 
 def redraw_xbm():
   global canvas, secs, timeron, frame
+  logging.debug("calling redraw_xbm()")
   blink = secs < -15 and int(time.time()) % 2
   digit1 = 0
   digit2 = 0
@@ -146,6 +155,7 @@ def redraw_xbm():
 def resize(event=None):
   global frame
   global canvas
+  logging.debug("calling resize()")
 
   # assuming portrait aspect here
   canvas.configure(width=frame.winfo_width(),height=frame.winfo_height())
@@ -154,6 +164,7 @@ def resize(event=None):
 # the main interface to update time call and redraw
 
 def update():
+  logging.debug("calling update()")
   check_time()
   redraw_xbm()
   root.after(100,update)
