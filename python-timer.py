@@ -18,6 +18,7 @@ import glob
 import re
 import time
 import logging
+import sys
 
 logging.basicConfig(level=logging.DEBUG,filename="/tmp/timer-log.txt",format='%(msecs)d %(levelname)s %(name)s %(message)s')
 
@@ -44,24 +45,31 @@ timeron = False
 fontconfig = configparser.ConfigParser()
 if not(exists("images/digits.ini")):
   logging.info("Generating digits.ini from current images directory")
-  files = glob.glob("images/*-colon-*.xbm")
-  for f in files:
-    m = re.match("images/(.+)\-colon\-(\d+).xbm",f)
-    prefix = m.group(1)
-    charwidth = m.group(2)
-    if prefix not in fontconfig:
-      fontconfig[prefix] = {}
+  try:
+    files = glob.glob("images/*-colon-*.xbm")
+    for f in files:
+      m = re.match("images/(.+)\-colon\-(\d+).xbm",f)
+      prefix = m.group(1)
+      charwidth = m.group(2)
+      if prefix not in fontconfig:
+        fontconfig[prefix] = {}
 
-    with open(f,"r") as fd:
-      for lin in fd.readlines():
-        m = re.match(".+width (\d+)", lin)
-        if m:
-          colon_width = m.group(1)
-          break
-    fontconfig[prefix][charwidth] = colon_width
-  with open("images/digits.ini","w") as fil:
-    fontconfig.write(fil)
-  logging.info("done")
+      with open(f,"r") as fd:
+        for lin in fd.readlines():
+          m = re.match(".+width (\d+)", lin)
+          if m:
+            colon_width = m.group(1)
+            break
+      fontconfig[prefix][charwidth] = colon_width
+    with open("images/digits.ini","w") as fil:
+      fontconfig.write(fil)
+    logging.info("done")
+  except OSError as err:
+    logging.error("OS Error: {0}".format(err))
+    sys.exit(1)
+  except BaseException as err:
+    logging.error("Base Exception error {err=}, {type(err)=}")
+    sys.exit(1)
 else:
   fontconfig.read("images/digits.ini")
 
