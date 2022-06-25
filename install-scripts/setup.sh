@@ -245,7 +245,7 @@ gen_xbm() {
 		exit 1
 	fi
 
-	/bin/bash "$tempdir/generate-digits.sh" -f 7segment.ttf -d "$1"
+	/bin/bash "$tempdir/generate-digits.sh" -p 7seg -f 7segment.ttf -d "$1"
 }
 
 # check arguments
