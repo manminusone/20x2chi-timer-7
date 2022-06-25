@@ -516,9 +516,11 @@ Path=$PWD
 EOF
 echo " "
 
-echo "* disabling piwiz"
-sudo rm /etc/xdg/autostart/piwiz.desktop
-
+if [[ -e /etc/xdg/autostart/piwiz.desktop ]]
+then
+	echo "* disabling piwiz"
+	sudo rm /etc/xdg/autostart/piwiz.desktop
+fi
 
 echo "*** done ***"
 echo " "
