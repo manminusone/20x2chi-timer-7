@@ -499,6 +499,10 @@ Exec=/usr/bin/python3 $PWD/python-timer.py
 EOF
 echo " "
 
+echo "* disabling piwiz"
+sudo rm /etc/xdg/autostart/piwiz.desktop
+
+
 echo " *** done ***"
 echo " Now restart."
 exit 0
