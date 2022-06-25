@@ -19,7 +19,7 @@ import re
 import time
 import logging
 
-logging.basicConfig(level=logging.DEBUG,filename="/tmp/timer-log.txt",format='{msecs} {levelname} {name} {message}')
+logging.basicConfig(level=logging.DEBUG,filename="/tmp/timer-log.txt",format='%(msecs)d %(levelname)s %(name)s %(message)s')
 
 # Set this flag to False if you want to run locally w/o API server
 HTTPREQ = True
