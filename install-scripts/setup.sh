@@ -253,8 +253,16 @@ gen_xbm() {
 		echo "I don't see the generate-digits.sh script around here."
 		exit 1
 	fi
-
 	/bin/bash "$tempdir/generate-digits.sh" -p 7seg -f 7segment.ttf -d "$1"
+
+	# also build the DSEG images, even though we can use only one set at a time.
+	# TODO - interface to modify the display when the hotspot is active
+
+	if [[ -e '/usr/share/fonts/truetype/dseg/DSEG7Classic-BoldItalic.ttf' ]]
+	then
+		/bin/bash "$tempdir/generate-digits.sh" -p dseg -f '/usr/share/fonts/truetype/dseg/DSEG7Classic-BoldItalic.ttf' -d "$1"
+	fi
+
 }
 
 # check arguments

@@ -28,7 +28,7 @@ Note that by default the hotspot will be inactive, so that you can continue serv
 
 ## Using the timer
 
-Once the setup is complete, you may start up the timer using the hotspot control script. The command **hotspot on** will activate the services needed to run the WiFi hotspot, and then reboot the machine. Running **hotspot off** will put the configs into their original state, to allow you to get back into the server for admin.
+Once the setup is complete, you may start up the timer using the hotspot control script. The command **hotspot on** will activate the services needed to run the WiFi hotspot, and then reboot the machine. Running **hotspot off** will put the configs into their original state, to allow you to get back into the server for admin. (Note that connecting to the server while it is a hotspot may involve you either connecting to the hotspot to ssh into the box, or putting a monitor and keyboard onto your RPi.)
 
 The Python timer display script should automatically start up when the RPi server reboots. If your server is connected to a composite monitor you should see the timer window, showing the current time as stored on the local HTTP server.
 

@@ -189,6 +189,9 @@ def update():
 root = Tk()
 root.title("20x2 Chicago timer")
 
+# exit if Esc key is read
+root.bind('<Escape>', lambda event: sys.exit(0) )
+
 # create the frame which will hold the canvas
 frame = Frame(root, bg='black')
 frame.pack(fill=BOTH,expand=1)
