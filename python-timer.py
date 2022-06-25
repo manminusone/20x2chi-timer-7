@@ -20,6 +20,10 @@ import time
 import logging
 import sys
 
+# First thing first:
+# get into the directory where the script is located
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 logging.basicConfig(level=logging.DEBUG,filename="/tmp/timer-log.txt",format='%(msecs)d %(levelname)s %(name)s %(message)s')
 
 # Set this flag to False if you want to run locally w/o API server
