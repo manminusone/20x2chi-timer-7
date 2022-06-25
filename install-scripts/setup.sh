@@ -243,7 +243,7 @@ fi
 
 if [[ "$USER" != "pi" ]]
 then
-    echo "You really should run this script as the 'pi' user."
+    echo "You should run this script as the 'pi' user."
     exit 1
 fi
 
