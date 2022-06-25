@@ -55,37 +55,45 @@ install_openresty() {
 	echo ".. adding systemd script"
 	cat <<- EOF | sudo tee /etc/systemd/system/openresty.service > /dev/null
 	# Stop dance for OpenResty
-	# A modification of the Nginx systemd script
-	# Source: https://www.digitalocean.com/community/tutorials/how-to-use-the-openresty-web-framework-for-nginx-on-ubuntu-16-04
-	# =======================
+	# =========================
 	#
-	# ExecStop sends SIGSTOP (graceful stop) to the Nginx process.
-	# If, after 5s (--retry QUIT/5) OpenResty is still running, systemd takes control
+	# ExecStop sends SIGSTOP (graceful stop) to OpenResty's nginx process.
+	# If, after 5s (--retry QUIT/5) nginx is still running, systemd takes control
 	# and sends SIGTERM (fast shutdown) to the main process.
-	# After another 5s (TimeoutStopSec=5), and if OpenResty is alive, systemd sends
+	# After another 5s (TimeoutStopSec=5), and if nginx is alive, systemd sends
 	# SIGKILL to all the remaining processes in the process group (KillMode=mixed).
 	#
-	# Nginx signals reference doc:
+	# nginx signals reference doc:
 	# http://nginx.org/en/docs/control.html
 	#
 	[Unit]
-	Description=A dynamic web platform based on Nginx and LuaJIT.
-	After=network.target
+	Description=The OpenResty Application Platform
+	After=syslog.target network-online.target remote-fs.target nss-lookup.target
+	Wants=network-online.target
 
 	[Service]
 	Type=forking
-	PIDFile=/run/openresty.pid
-	ExecStartPre=/usr/local/openresty/bin/openresty -t -q -g 'daemon on; master_process on;'
-	ExecStart=/usr/local/openresty/bin/openresty -g 'daemon on; master_process on;'
-	ExecReload=/usr/local/openresty/bin/openresty -g 'daemon on; master_process on;' -s reload
-	ExecReload=/bin/kill -s HUP $MAINPID
-	ExecStop=/bin/kill -s QUIT $MAINPID
+	PIDFile=/usr/local/openresty/nginx/logs/nginx.pid
+	ExecStartPre=/usr/local/openresty/nginx/sbin/nginx -t -q -g 'daemon on; master_process on;'
+	ExecStart=/usr/local/openresty/nginx/sbin/nginx -g 'daemon on; master_process on;'
+	ExecReload=/usr/local/openresty/nginx/sbin/nginx -g 'daemon on; master_process on;' -s reload
+	ExecStop=-/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /usr/local/openresty/nginx/logs/nginx.pid
 	TimeoutStopSec=5
 	KillMode=mixed
 
 	[Install]
-	WantedBy=multi-user.target	
+	WantedBy=multi-user.target
 	EOF
+	sudo systemctl daemon-reload
+	sudo systemctl enable openresty
+	echo ".. attempting startup of openresty service"
+	if ! sudo systemctl start openresty
+	then
+		echo "Startup failed. Try 'systemctl status openresty' to see what went wrong."
+		exit 1
+	fi
+	echo " "	
+
 
     # don't add the PATH update if it appears to be in .profile
     if [[ $(grep -c openresty ~/.profile) == "0" ]]
