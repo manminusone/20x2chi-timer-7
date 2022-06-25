@@ -81,7 +81,7 @@ def check_time():
     with session.get("http://localhost/time") as r:
       http_code = r.status_code
       if http_code == 200:
-        logging.debug("content = " + r.content)
+        logging.debug("content = %s" % str(r.content))
         js = json.loads(r.content)
         if timeron == False and js["status"] == 'ON':
           timeron = True
