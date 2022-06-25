@@ -58,6 +58,7 @@ if not(exists("images/digits.ini")):
       if prefix not in fontconfig:
         fontconfig[prefix] = {}
 
+      logging.debug('.. checking %s' % f)
       with open(f,"r") as fd:
         for lin in fd.readlines():
           m = re.match(".+width (\d+)", lin)
@@ -65,6 +66,7 @@ if not(exists("images/digits.ini")):
             colon_width = m.group(1)
             break
       fontconfig[prefix][charwidth] = colon_width
+    logging.debug("writing images/digits.ini")
     with open("images/digits.ini","w") as fil:
       fontconfig.write(fil)
     logging.info("done")
