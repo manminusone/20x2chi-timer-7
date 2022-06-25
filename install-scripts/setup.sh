@@ -16,6 +16,9 @@ SSID="TestSSID"
 PASSWD="ChangeThisPassword"
 
 
+# keeping track of any warning messages
+WARNINGS=()
+
 # this is all in a function because it can be called in a couple of places
 install_openresty() {
     echo ".. downloading version $OPENRESTY_VERSION"
@@ -121,6 +124,12 @@ install_wifi_config() {
 	ssid=$SSID
 	wpa_passphrase=$PASSWD
 	EOF
+
+	# Just a reminder to udpate the ssid
+	if [[ "$PASSWD" == "ChangeThisPassword" ]]
+	then
+		WARNINGS+=( "Edit the SSID/password details in /etc/hostapd/hostapd.conf" )
+	fi
 
 	# also need to update the script to use this config file
 	if ! sudo sed -i 's/#DAEMON_CONF=""/DAEMON_CONF="\/etc\/hostapd\/hostapd.conf"/g' /etc/default/hostapd
@@ -310,7 +319,8 @@ then
     echo "You haven't changed the default password for the 'pi' user."
     read -r -p "Do you want to change the password before we start? [Yn] " yn
     case $yn in
-      [nN]* ) echo "Okay, just remember to change it please? Thanks.";;
+      [nN]* ) echo "Okay, just remember to change it please? Thanks."
+	  	WARNINGS+=( "Change the 'pi' password" );;
       * ) /usr/sbin/passwd ;
     esac
 fi
@@ -346,7 +356,7 @@ then
             echo "OK, leaving it alone.";;
         * )
             echo "Updating"
-            echo $DEFAULT_TZ | sudo tee /etc/timezone
+            sudo timedatectl set-timezone $DEFAULT_TZ
             ;;
     esac
 fi
@@ -362,21 +372,19 @@ convert -size 720x480 canvas:black black.png
 sudo mv black.png /etc/alternatives/desktop-background
 echo " "
 
-echo "* updating the splash screen"
 if [[ -e images/splash.png ]]
 then
+	echo "* updating the splash screen"
 	if ! sudo cp images/splash.png /usr/share/plymouth/themes/pix/splash.png 
 	then
 		echo "! Copying the splash.png file to the /usr/share/plymouth/themes/pix directory failed"
 		exit 1
 	fi
-	UPDATED=1
+else
+	echo "The splash.png file doesn't appear to be in the images/ directory,"
+	echo "so I can't update the splash screen."
+	WARNIGS+=( "Check the splash screen" )
 fi
-
-if [[ "$UPDATED" ==  "0" ]]
-then 
-    echo "!!! I don't see the splash screen, so you should check on that. I won't stop the install though."
-fi 
 echo " "
 
 echo "* setting up .xinitrc for screen blanking"
@@ -504,6 +512,18 @@ echo "* disabling piwiz"
 sudo rm /etc/xdg/autostart/piwiz.desktop
 
 
-echo " *** done ***"
-echo " Now restart."
+echo "*** done ***"
+echo " "
+
+if [[ ${#WARNINGS[@]} -gt 0 ]]
+then
+	echo "Here are some issues you should investigate:"
+	echo " "
+	for i in "${WARNINGS[@]}"
+	do
+		echo " * $i"
+	done
+else
+	echo "No problems detected during setup, so you should be good to go"
+fi
 exit 0
