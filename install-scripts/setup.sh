@@ -109,8 +109,8 @@ install_openresty() {
 
 install_wifi_config() {
 	cat <<- EOF | sudo tee /etc/hostapd/hostapd.conf > /dev/null
+	country_code=US
 	interface=wlan0
-	bridge=br0
 	hw_mode=g
 	channel=7
 	wmm_enabled=0
@@ -118,8 +118,8 @@ install_wifi_config() {
 	auth_algs=1
 	ignore_broadcast_ssid=0
 	wpa=2
-	wpa_key_mgmt=WPA-PSK
-	wpa_pairwise=TKIP
+	wpa_key_mgmt=WPA-PSK WPA-EAP
+	wpa_pairwise=TKIP CCMP
 	rsn_pairwise=CCMP
 	ssid=$SSID
 	wpa_passphrase=$PASSWD
@@ -154,7 +154,7 @@ install_wifi_config() {
 
 	interface wlan0
 	static ip_address=192.168.4.1/24
-	denyinterfaces wlan0
+	nohook wpa_supplicant
 	EOF
 
 	cat <<- EOF | sudo tee /etc/dnsmasq.conf.ORIGINAL > /dev/null
