@@ -338,7 +338,7 @@ echo " "
 
 echo "* updating apt packages"
 sudo apt-get update
-if ! sudo apt-get upgrade -y
+if ! sudo apt-get full-upgrade -y
 then
     echo "The upgrade threw an error. Check it out, won't you?"
     exit 1

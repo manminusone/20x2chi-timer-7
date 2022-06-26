@@ -18,8 +18,9 @@ With the caveat that this documentation is still being worked out, here are the 
 
 * Build a stock Raspberry Pi image with the desktop.
 * If you aren't immediately connecting a keyboard and monitor to the server for further setup, you should review the instructions on [setting up a headless Raspberry Pi](https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-headless-raspberry-pi) at the official site.
-* Log into the RPi instance. Change the 'pi' password.
+* Log into the RPi instance. Change the 'pi' password. (The script may think you haven't changed the password if you don't reboot after the password change. This warning can safely be ignored.)
 * Clone this repository.
+* Edit the [setup script](install-scripts/setup.sh) to add in appropriate values for SSID and PASSWD (the credentials for the hotspot).
 * Run the [setup script](install-scripts/setup.sh) from the repository directory.
     * If the script fails, there should be a message as to what to investigate to fix any issues.
     * If the script completes, you may get a list of warnings to inform you about issues that you should investigate.
