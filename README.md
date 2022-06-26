@@ -17,22 +17,25 @@ So the current plan is: set up a Raspberry Pi server with a composite monitor (o
 With the caveat that this documentation is still being worked out, here are the general steps.
 
 * Build a stock Raspberry Pi image with the desktop.
+* If you aren't immediately connecting a keyboard and monitor to the server for further setup, you should review the instructions on [setting up a headless Raspberry Pi](https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-headless-raspberry-pi) at the official site.
 * Log into the RPi instance. Change the 'pi' password.
 * Clone this repository.
 * Run the [setup script](install-scripts/setup.sh) from the repository directory.
-* If the script fails, there should be a message as to what to investigate to fix any issues.
-* If the script completes, you may get a list of warnings to inform you about things that you should look into.
-* If there are no warnings, then you should be good to go. 
+    * If the script fails, there should be a message as to what to investigate to fix any issues.
+    * If the script completes, you may get a list of warnings to inform you about issues that you should investigate.
+    * If there are no warnings, then you should be good to go. 
 
-Note that by default the hotspot will be inactive, so that you can continue server setup before you start using it.
+Note that by default the hotspot will be inactive, so that you can continue server setup before you start using the timer.
 
 ## Using the timer
 
-Once the setup is complete, you may start up the timer using the hotspot control script. The command **hotspot on** will activate the services needed to run the WiFi hotspot, and then reboot the machine. Running **hotspot off** will put the configs into their original state, to allow you to get back into the server for admin. (Note that connecting to the server while it is a hotspot may involve you either connecting to the hotspot to ssh into the box, or putting a monitor and keyboard onto your RPi.)
+Once the setup is complete, you may start up the timer using the hotspot control script. The command **hotspot on** will activate the services needed to run the WiFi hotspot, and then reboot the machine. Running **hotspot off** will put the configs into their original state, to allow you to get back into the server for admin. (Note that connecting to the server while it is a hotspot may involve you either connecting to the hotspot to ssh into the box, or attaching a monitor and keyboard to your RPi.)
 
 The Python timer display script should automatically start up when the RPi server reboots. If your server is connected to a composite monitor you should see the timer window, showing the current time as stored on the local HTTP server.
 
-There will be an Arduino admin client that should be able to connect to the RPI's WiFi hotspot and control the timer via the HTTP server. The ESP32 boards manufactured by M5Stack will be supported because they provide a simple all-in-one hardware product that can be used for the control.
+If you need to connect to the server while the hotspot is active, hitting the Escape key will close the timer window and bring you back to the desktop.
+
+The hotspot config allows for an Arduino admin client to connect to the RPi and control the timer via the HTTP server. The ESP32 boards manufactured by M5Stack will be supported because they provide a simple all-in-one hardware product that can be used for the control.
 
 ## Technologies used
 

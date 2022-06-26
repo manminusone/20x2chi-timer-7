@@ -11,5 +11,6 @@ Not all of the width values are used by the script; I just generated them in cas
 Other image files in this directory:
 
 * black.png -- a black PNG used as the desktop background
+* readme-diagram.png -- the server diagram used in the main README file
 * splash.png -- a 20x2 splash page image
 
