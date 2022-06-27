@@ -329,7 +329,7 @@ then
     case $yn in
       [nN]* ) echo "Okay, just remember to change it please? Thanks."
 	  	WARNINGS+=( "Change the 'pi' password" );;
-      * ) /usr/bin/passwd ;
+      * ) /usr/bin/passwd ;;
     esac
 fi
 
