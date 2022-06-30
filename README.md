@@ -21,7 +21,7 @@ With the caveat that this documentation is still being worked out, here are the 
 * Log into the RPi instance. Change the 'pi' password. (The script may think you haven't changed the password if you don't reboot after the password change. This warning can safely be ignored.)
 * Clone this repository.
 * Edit the [setup script](install-scripts/setup.sh) to add in appropriate values for SSID and PASSWD (the credentials for the hotspot).
-* Run the [setup script](install-scripts/setup.sh) from the repository directory.
+* Run the setup script from the repository directory.
     * If the script fails, there should be a message as to what to investigate to fix any issues.
     * If the script completes, you may get a list of warnings to inform you about issues that you should investigate.
     * If there are no warnings, then you should be good to go. 
