@@ -407,6 +407,15 @@ cat <<FOO | tee  ~/.config/lxsession/LXDE-pi/autostart > /dev/null
 FOO
 echo " "
 
+echo "* Setting hostname"
+
+echo '20x2chi-timer' | sudo tee /etc/hostname > /dev/null
+if [[ $(grep -c '20x2chi-timer' /etc/hosts) == "0" ]]
+then
+	echo '127.0.0.1 20x2chi-timer' | sudo tee -a /etc/hosts > /dev/null
+fi
+echo " "
+
 echo "Part 2: Software Setup"
 echo " "
 echo "* setting up openresty"
@@ -536,4 +545,6 @@ then
 else
 	echo "No problems detected during setup, so you should be good to go"
 fi
+echo "Note that the hostname has been changed to 20x2chi-timer,"
+echo "so if you reboot you should look for that server name."
 exit 0
